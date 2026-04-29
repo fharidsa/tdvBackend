@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: tdvBackend
+  datasource:
+    url: jdbc:sqlserver://localhost;instanceName=MSSQLSERVER;port=1433;databaseName=tdvinvento;encrypt=false;trustServerCertificate=true
+    username: sa
+    password: ${SQLSERVER_PASSWORD:PasswordO1.}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
