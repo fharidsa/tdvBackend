@@ -1,6 +1,11 @@
 spring:
   application:
     name: tdvBackend
+  data:
+    web:
+      pageable:
+        max-page-size: 500
+        one-indexed-parameters: false
   datasource:
     url: jdbc:sqlserver://localhost;instanceName=MSSQLSERVER;port=1433;databaseName=tdvinvento;encrypt=false;trustServerCertificate=true
     username: sa
