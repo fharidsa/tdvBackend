@@ -23,9 +23,10 @@ class InvTdvConteoIcaService(
         fechaDesde: LocalDate?,
         fechaHasta: LocalDate?,
         conforme: Boolean?,
+        coCicaIca: String?,
         pageable: Pageable,
     ): InvTdvConteoIcaPageDto {
-        val spec = InvTdvConteoIcaSpecifications.filter(fechaDesde, fechaHasta, conforme)
+        val spec = InvTdvConteoIcaSpecifications.filter(fechaDesde, fechaHasta, conforme, coCicaIca)
         val page: Page<InvTdvConteoIca> = repository.findAll(spec, pageable)
         return InvTdvConteoIcaPageDto(
             content = page.content.map { it.toResponse() },

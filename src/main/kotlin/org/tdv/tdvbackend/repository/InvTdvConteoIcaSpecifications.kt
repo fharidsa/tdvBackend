@@ -11,11 +11,13 @@ object InvTdvConteoIcaSpecifications {
      * @param fechaDesde inclusive (inicio del día en servidor)
      * @param fechaHasta inclusive (fin del día en servidor)
      * @param conforme si no es null, filtra [InvTdvConteoIca.flBconforme] igual a ese valor
+     * @param coCicaIca si no es null ni vacío, filtra por igualdad en [InvTdvConteoIca.coCicaIca]
      */
     fun filter(
         fechaDesde: LocalDate?,
         fechaHasta: LocalDate?,
         conforme: Boolean?,
+        coCicaIca: String?,
     ): Specification<InvTdvConteoIca> =
         Specification { root, _, cb ->
             val predicates = mutableListOf<Predicate>()
@@ -26,6 +28,9 @@ object InvTdvConteoIcaSpecifications {
                 predicates += cb.lessThan(root.get("feDfecha"), it.plusDays(1).atStartOfDay())
             }
             conforme?.let { predicates += cb.equal(root.get<Boolean>("flBconforme"), it) }
+            coCicaIca?.takeIf { it.isNotBlank() }?.let { code ->
+                predicates += cb.equal(root.get<String>("coCicaIca"), code.trim())
+            }
             if (predicates.isEmpty()) {
                 cb.conjunction()
             } else {

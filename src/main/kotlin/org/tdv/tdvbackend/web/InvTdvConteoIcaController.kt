@@ -26,6 +26,7 @@ import org.tdv.tdvbackend.web.dto.InvTdvConteoIcaResponse
  * - **GET** sin `id`: listado **paginado** (`InvTdvConteoIcaPageDto`, 200 OK).
  *   Query opcionales: `fecha_desde`, `fecha_hasta` (ISO fecha `yyyy-MM-dd`, rango inclusive por día en zona del servidor),
  *   `conforme` (`true` = conformes, `false` = no conformes, omitido = todos),
+ *   `co_cica_ica` (código ICA del conteo, coincidencia exacta con columna `co_cica_ica`; omitido = todos),
  *   paginación estándar Spring: `page`, `size`, `sort` (p. ej. `sort=feDfecha,desc`).
  * - **GET** con `id`: un registro (200 o 404).
  * - **POST**: alta (201 Created, cuerpo del recurso; cabecera Location al GET con ese id).
@@ -46,6 +47,8 @@ class InvTdvConteoIcaController(
         fechaHasta: LocalDate?,
         @RequestParam(required = false)
         conforme: Boolean?,
+        @RequestParam(name = "co_cica_ica", required = false)
+        coCicaIca: String?,
         @PageableDefault(
             size = 20,
             sort = ["feDfecha", "idConteoIca"],
@@ -53,7 +56,7 @@ class InvTdvConteoIcaController(
         )
         pageable: Pageable,
     ): ResponseEntity<InvTdvConteoIcaPageDto> =
-        ResponseEntity.ok(service.search(fechaDesde, fechaHasta, conforme, pageable))
+        ResponseEntity.ok(service.search(fechaDesde, fechaHasta, conforme, coCicaIca, pageable))
 
     @GetMapping("/{id}")
     fun getById(
