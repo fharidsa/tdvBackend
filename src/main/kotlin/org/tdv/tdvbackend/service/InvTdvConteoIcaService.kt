@@ -58,6 +58,8 @@ class InvTdvConteoIcaService(
                 nuNcantidadIca = cantidad,
                 coCicaIca = request.coCicaIca,
                 flBconforme = conforme,
+                idUsuario = request.idUsuario,
+                noUsuario = request.noUsuario?.take(500),
             )
         val saved = repository.save(entity)
         return saved.toResponse()
@@ -76,4 +78,6 @@ private fun InvTdvConteoIca.toResponse(): InvTdvConteoIcaResponse =
         nuNcantidadIca = nuNcantidadIca,
         coCicaIca = coCicaIca,
         flBconforme = flBconforme,
+        idUsuario = idUsuario,
+        noUsuario = noUsuario,
     )

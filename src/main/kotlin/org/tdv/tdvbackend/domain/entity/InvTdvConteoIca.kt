@@ -33,4 +33,10 @@ class InvTdvConteoIca(
 
     @Column(name = "fl_bconforme")
     var flBconforme: Boolean? = null,
+
+    @Column(name = "id_usuario")
+    var idUsuario: Int? = null,
+
+    @Column(name = "no_usuario", length = 500)
+    var noUsuario: String? = null,
 )

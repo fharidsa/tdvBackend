@@ -10,4 +10,6 @@ data class InvTdvConteoIcaResponse(
     val nuNcantidadIca: Int?,
     val coCicaIca: String?,
     val flBconforme: Boolean?,
+    val idUsuario: Int?,
+    val noUsuario: String?,
 )

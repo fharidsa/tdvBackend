@@ -19,4 +19,10 @@ data class InvTdvConteoIcaCreateRequest(
     @JsonProperty("co_cica_ica")
     @JsonAlias("coCicaIca")
     val coCicaIca: String? = null,
+    @JsonProperty("id_usuario")
+    @JsonAlias("idUsuario")
+    val idUsuario: Int? = null,
+    @JsonProperty("no_usuario")
+    @JsonAlias("noUsuario")
+    val noUsuario: String? = null,
 )
