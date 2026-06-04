@@ -1,4 +1,22 @@
+tdv:
+  printer:
+    host: 127.0.0.1
+    port: 9100
+    enabled: false
+  security:
+    jwt:
+      secret: test-jwt-secret-must-be-at-least-32-chars-long
+      expiration-minutes: 30
+  bootstrap:
+    login: sys
+    display-name: sistema
+    password: test-bootstrap-password
+
 spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:h2-schema-dbo.sql
   datasource:
     url: jdbc:h2:mem:tdv_test;DB_CLOSE_DELAY=-1;MODE=MSSQLServer
     username: sa
@@ -10,3 +28,4 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+        default_schema: dbo

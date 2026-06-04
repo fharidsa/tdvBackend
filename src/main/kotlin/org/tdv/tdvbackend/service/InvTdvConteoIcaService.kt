@@ -5,7 +5,9 @@ import java.time.LocalDateTime
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.support.TransactionTemplate
 import org.tdv.tdvbackend.domain.entity.InvTdvConteoIca
 import org.tdv.tdvbackend.repository.InvTdvConteoIcaRepository
 import org.tdv.tdvbackend.repository.InvTdvConteoIcaSpecifications
@@ -16,7 +18,10 @@ import org.tdv.tdvbackend.web.dto.InvTdvConteoIcaResponse
 @Service
 class InvTdvConteoIcaService(
     private val repository: InvTdvConteoIcaRepository,
+    private val labelPrinter: ZebraLabelPrinterService,
+    transactionManager: PlatformTransactionManager,
 ) {
+    private val writeTransaction = TransactionTemplate(transactionManager)
 
     @Transactional(readOnly = true)
     fun search(
@@ -43,8 +48,26 @@ class InvTdvConteoIcaService(
     fun findById(id: Long): InvTdvConteoIcaResponse? =
         repository.findById(id).map { it.toResponse() }.orElse(null)
 
-    @Transactional
     fun create(request: InvTdvConteoIcaCreateRequest): InvTdvConteoIcaResponse {
+        val saved =
+            writeTransaction.execute {
+                persistConteo(request)
+            }!!
+
+        val labelPrinted =
+            if (saved.flBconforme == true) {
+                labelPrinter.tryPrintUserDateLabel(
+                    usuario = resolveNombreUsuario(saved),
+                    fecha = saved.feDfecha?.toLocalDate() ?: LocalDate.now(),
+                )
+            } else {
+                null
+            }
+
+        return saved.toResponse(labelPrinted = labelPrinted)
+    }
+
+    private fun persistConteo(request: InvTdvConteoIcaCreateRequest): InvTdvConteoIca {
         val lecturas = request.nuNlecturas
         val cantidad = request.nuNcantidadIca
         val conforme =
@@ -61,12 +84,18 @@ class InvTdvConteoIcaService(
                 idUsuario = request.idUsuario,
                 noUsuario = request.noUsuario?.take(500),
             )
-        val saved = repository.save(entity)
-        return saved.toResponse()
+        return repository.save(entity)
     }
+
+    private fun resolveNombreUsuario(conteo: InvTdvConteoIca): String =
+        conteo.noUsuario
+            ?.trim()
+            ?.takeIf { it.isNotEmpty() }
+            ?: conteo.idUsuario?.let { "Usuario $it" }
+            ?: "Usuario"
 }
 
-private fun InvTdvConteoIca.toResponse(): InvTdvConteoIcaResponse =
+private fun InvTdvConteoIca.toResponse(labelPrinted: Boolean? = null): InvTdvConteoIcaResponse =
     InvTdvConteoIcaResponse(
         idConteoIca =
             checkNotNull(idConteoIca) {
@@ -80,4 +109,5 @@ private fun InvTdvConteoIca.toResponse(): InvTdvConteoIcaResponse =
         flBconforme = flBconforme,
         idUsuario = idUsuario,
         noUsuario = noUsuario,
+        labelPrinted = labelPrinted,
     )

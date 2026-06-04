@@ -1,3 +1,23 @@
+tdv:
+  printer:
+    host: ${PRINTER_HOST:192.168.1.80}
+    port: ${PRINTER_PORT:9100}
+    enabled: ${PRINTER_ENABLED:true}
+  security:
+    jwt:
+      secret: ${TDV_JWT_SECRET:change-me-use-long-random-secret-in-production}
+      expiration-minutes: ${TDV_JWT_EXPIRATION_MINUTES:30}
+  bootstrap:
+    login: ${TDV_BOOTSTRAP_LOGIN:sys}
+    display-name: ${TDV_BOOTSTRAP_DISPLAY_NAME:sistema}
+    password: ${TDV_BOOTSTRAP_PASSWORD:123}
+
+server:
+  error:
+    include-message: always
+    include-binding-errors: never
+    include-stacktrace: never
+
 spring:
   application:
     name: tdvBackend
