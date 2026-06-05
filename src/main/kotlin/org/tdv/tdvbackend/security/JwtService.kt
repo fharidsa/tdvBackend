@@ -1,10 +1,12 @@
 package org.tdv.tdvbackend.security
 
+import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.Date
+import java.util.UUID
 import javax.crypto.SecretKey
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -14,34 +16,41 @@ import org.tdv.tdvbackend.web.dto.auth.UserProfileResponse
 @Service
 class JwtService(
     @Value("\${tdv.security.jwt.secret}") secret: String,
-    @Value("\${tdv.security.jwt.expiration-minutes}") private val expirationMinutes: Long,
 ) {
     private val signingKey: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray(StandardCharsets.UTF_8))
 
+    /** JWT sin claim `exp` (no caduca por tiempo). Incluye `jti` para revocación individual. */
     fun generateToken(user: UserProfileResponse): String {
         val now = Instant.now()
-        val expiry = now.plusSeconds(expirationMinutes * 60)
+        val jti = UUID.randomUUID().toString()
         return Jwts
             .builder()
+            .id(jti)
             .subject(user.idUsuario.toString())
             .claim(CLAIM_LOGIN, user.coLogin)
             .claim(CLAIM_NAME, user.noNusuario)
             .claim(CLAIM_ROLE, user.coRol.name)
             .issuedAt(Date.from(now))
-            .expiration(Date.from(expiry))
             .signWith(signingKey)
             .compact()
     }
 
-    fun parsePrincipal(token: String): TdvUserPrincipal {
-        val claims =
-            Jwts
-                .parser()
-                .verifyWith(signingKey)
-                .build()
-                .parseSignedClaims(token)
-                .payload
+    fun extractJti(token: String): String? =
+        runCatching {
+            parseClaims(token).id
+        }.getOrNull()
 
+    fun parsePrincipal(token: String): TdvUserPrincipal = toPrincipal(parseClaims(token))
+
+    private fun parseClaims(token: String): Claims =
+        Jwts
+            .parser()
+            .verifyWith(signingKey)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+
+    private fun toPrincipal(claims: Claims): TdvUserPrincipal {
         val id = claims.subject.toInt()
         val login = claims[CLAIM_LOGIN, String::class.java]
         val name = claims[CLAIM_NAME, String::class.java]

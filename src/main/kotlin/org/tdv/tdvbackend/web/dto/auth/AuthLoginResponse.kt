@@ -7,8 +7,6 @@ data class AuthLoginResponse(
     val accessToken: String,
     @JsonProperty("tokenType")
     val tokenType: String = "Bearer",
-    @JsonProperty("expiresInMinutes")
-    val expiresInMinutes: Long,
     @JsonProperty("user")
     val user: UserProfileResponse,
 )

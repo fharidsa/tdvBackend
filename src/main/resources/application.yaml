@@ -6,7 +6,6 @@ tdv:
   security:
     jwt:
       secret: ${TDV_JWT_SECRET:change-me-use-long-random-secret-in-production}
-      expiration-minutes: ${TDV_JWT_EXPIRATION_MINUTES:30}
   bootstrap:
     login: ${TDV_BOOTSTRAP_LOGIN:sys}
     display-name: ${TDV_BOOTSTRAP_DISPLAY_NAME:sistema}

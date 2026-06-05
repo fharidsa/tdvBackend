@@ -1,6 +1,5 @@
 package org.tdv.tdvbackend.service
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.tdv.tdvbackend.domain.entity.InvTdvUsuario
@@ -20,8 +19,14 @@ class AuthService(
     private val usuarioService: InvTdvUsuarioService,
     private val passwordService: PasswordService,
     private val jwtService: JwtService,
-    @Value("\${tdv.security.jwt.expiration-minutes}") private val expirationMinutes: Long,
+    private val revokedJwtService: RevokedJwtService,
 ) {
+
+    @Transactional
+    fun logout(accessToken: String) {
+        val jti = jwtService.extractJti(accessToken.trim()) ?: return
+        revokedJwtService.revoke(jti)
+    }
 
     @Transactional(readOnly = true)
     fun login(request: LoginRequest): AuthLoginResponse {
@@ -66,7 +71,6 @@ class AuthService(
         val token = jwtService.generateToken(profile)
         return AuthLoginResponse(
             accessToken = token,
-            expiresInMinutes = expirationMinutes,
             user = profile,
         )
     }

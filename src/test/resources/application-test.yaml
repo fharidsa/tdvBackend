@@ -6,7 +6,6 @@ tdv:
   security:
     jwt:
       secret: test-jwt-secret-must-be-at-least-32-chars-long
-      expiration-minutes: 30
   bootstrap:
     login: sys
     display-name: sistema

@@ -1,6 +1,8 @@
 package org.tdv.tdvbackend.web
 
+import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -45,5 +47,17 @@ class AuthController(
     }
 
     @PostMapping("/logout")
-    fun logout(): ResponseEntity<Void> = ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    fun logout(request: HttpServletRequest): ResponseEntity<Void> {
+        val token = extractBearerToken(request)
+        if (!token.isNullOrBlank()) {
+            authService.logout(token)
+        }
+        return ResponseEntity.noContent().build()
+    }
+
+    private fun extractBearerToken(request: HttpServletRequest): String? {
+        val header = request.getHeader(HttpHeaders.AUTHORIZATION) ?: return null
+        if (!header.startsWith("Bearer ", ignoreCase = true)) return null
+        return header.removePrefix("Bearer ").trim().takeIf { it.isNotEmpty() }
+    }
 }

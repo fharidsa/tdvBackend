@@ -1,8 +1,11 @@
 package org.tdv.tdvbackend.service
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.tdv.tdvbackend.security.JwtService
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,6 +26,12 @@ class AuthServiceTest {
     @Autowired
     private lateinit var authService: AuthService
 
+    @Autowired
+    private lateinit var jwtService: JwtService
+
+    @Autowired
+    private lateinit var revokedJwtService: RevokedJwtService
+
     @Test
     fun login_succeedsForBootstrapUser() {
         val response =
@@ -39,6 +48,18 @@ class AuthServiceTest {
         assertThrows(InvalidCredentialsException::class.java) {
             authService.login(LoginRequest(login = "sys", password = "wrong"))
         }
+    }
+
+    @Test
+    fun logout_revokesOnlyCurrentTokenJti() {
+        val login =
+            authService.login(
+                LoginRequest(login = "sys", password = "test-bootstrap-password"),
+            )
+        val jti = checkNotNull(jwtService.extractJti(login.accessToken))
+        assertFalse(revokedJwtService.isRevoked(jti))
+        authService.logout(login.accessToken)
+        assertTrue(revokedJwtService.isRevoked(jti))
     }
 
     @Test
