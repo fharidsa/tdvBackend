@@ -3,6 +3,8 @@ tdv:
     host: ${PRINTER_HOST:192.168.1.80}
     port: ${PRINTER_PORT:9100}
     enabled: ${PRINTER_ENABLED:true}
+    connect-timeout-ms: ${PRINTER_CONNECT_TIMEOUT_MS:3000}
+    socket-timeout-ms: ${PRINTER_SOCKET_TIMEOUT_MS:3000}
   security:
     jwt:
       secret: ${TDV_JWT_SECRET:change-me-use-long-random-secret-in-production}

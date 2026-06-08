@@ -1,6 +1,7 @@
 package org.tdv.tdvbackend.service
 
 import java.io.OutputStream
+import java.net.InetSocketAddress
 import java.net.Socket
 import java.time.LocalDate
 import org.slf4j.LoggerFactory
@@ -12,6 +13,8 @@ class ZebraLabelPrinterService(
     @Value("\${tdv.printer.host}") private val printerHost: String,
     @Value("\${tdv.printer.port}") private val printerPort: Int,
     @Value("\${tdv.printer.enabled:true}") private val printerEnabled: Boolean,
+    @Value("\${tdv.printer.connect-timeout-ms:3000}") private val connectTimeoutMs: Int,
+    @Value("\${tdv.printer.socket-timeout-ms:3000}") private val socketTimeoutMs: Int,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -77,7 +80,9 @@ class ZebraLabelPrinterService(
         val host = resolvePrinterHost(hostOverride)
         val port = resolvePrinterPort(portOverride)
         try {
-            Socket(host, port).use { socket ->
+            Socket().use { socket ->
+                socket.connect(InetSocketAddress(host, port), connectTimeoutMs.coerceAtLeast(500))
+                socket.soTimeout = socketTimeoutMs.coerceAtLeast(500)
                 val out: OutputStream = socket.getOutputStream()
                 out.write(zpl.toByteArray(Charsets.UTF_8))
                 out.flush()

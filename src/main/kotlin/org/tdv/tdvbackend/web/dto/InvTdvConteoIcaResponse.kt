@@ -12,6 +12,6 @@ data class InvTdvConteoIcaResponse(
     val flBconforme: Boolean?,
     val idUsuario: Int?,
     val noUsuario: String?,
-    /** true/false solo al crear conteo conforme; null en listados o si no aplica impresión. */
+    /** Reservado; la impresión de etiqueta se dispara de forma asíncrona desde la app. */
     val labelPrinted: Boolean? = null,
 )

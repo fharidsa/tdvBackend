@@ -1,0 +1,10 @@
+# Perfil para contenedor Docker (ver deploy/docker-compose.yml).
+spring:
+  datasource:
+    url: jdbc:sqlserver://${SQLSERVER_HOST:sqlserver}:${SQLSERVER_PORT:1433};databaseName=${SQLSERVER_DATABASE:tdvinvento};encrypt=false;trustServerCertificate=true
+    username: ${SQLSERVER_USER:sa}
+    password: ${SQLSERVER_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+server:
+  port: ${SERVER_PORT:8080}

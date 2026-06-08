@@ -1,6 +1,5 @@
 package org.tdv.tdvbackend.service
 
-import java.time.LocalDate
 import java.time.LocalDateTime
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -14,11 +13,11 @@ import org.tdv.tdvbackend.repository.InvTdvConteoIcaSpecifications
 import org.tdv.tdvbackend.web.dto.InvTdvConteoIcaCreateRequest
 import org.tdv.tdvbackend.web.dto.InvTdvConteoIcaPageDto
 import org.tdv.tdvbackend.web.dto.InvTdvConteoIcaResponse
+import java.time.LocalDate
 
 @Service
 class InvTdvConteoIcaService(
     private val repository: InvTdvConteoIcaRepository,
-    private val labelPrinter: ZebraLabelPrinterService,
     transactionManager: PlatformTransactionManager,
 ) {
     private val writeTransaction = TransactionTemplate(transactionManager)
@@ -53,18 +52,7 @@ class InvTdvConteoIcaService(
             writeTransaction.execute {
                 persistConteo(request)
             }!!
-
-        val labelPrinted =
-            if (saved.flBconforme == true) {
-                labelPrinter.tryPrintUserDateLabel(
-                    usuario = resolveNombreUsuario(saved),
-                    fecha = saved.feDfecha?.toLocalDate() ?: LocalDate.now(),
-                )
-            } else {
-                null
-            }
-
-        return saved.toResponse(labelPrinted = labelPrinted)
+        return saved.toResponse()
     }
 
     private fun persistConteo(request: InvTdvConteoIcaCreateRequest): InvTdvConteoIca {
@@ -86,13 +74,6 @@ class InvTdvConteoIcaService(
             )
         return repository.save(entity)
     }
-
-    private fun resolveNombreUsuario(conteo: InvTdvConteoIca): String =
-        conteo.noUsuario
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
-            ?: conteo.idUsuario?.let { "Usuario $it" }
-            ?: "Usuario"
 }
 
 private fun InvTdvConteoIca.toResponse(labelPrinted: Boolean? = null): InvTdvConteoIcaResponse =
