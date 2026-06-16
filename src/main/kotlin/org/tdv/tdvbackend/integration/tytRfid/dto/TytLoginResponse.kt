@@ -4,8 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TytLoginResponse(
-    val valid: Boolean = false,
     val codEmpleado: String? = null,
-    val nombre: String? = null,
+    val login: String? = null,
+    val empleado: String? = null,
+    val correoElectronico: String? = null,
     val message: String? = null,
-)
+) {
+    val valid: Boolean
+        get() = !codEmpleado.isNullOrBlank()
+
+    val nombre: String?
+        get() = empleado
+}

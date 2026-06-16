@@ -1,6 +1,6 @@
 package org.tdv.tdvbackend.integration.tytRfid.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -18,10 +18,10 @@ import org.tdv.tdvbackend.integration.tytRfid.exception.TytRfidException
 class TytRfidValidaCajaClient(
     private val tytRfidHttpClient: HttpClient,
     private val properties: TytRfidProperties,
-    private val objectMapper: ObjectMapper,
     private val authClient: TytRfidAuthClient,
 ) {
     private val log = LoggerFactory.getLogger(TytRfidValidaCajaClient::class.java)
+    private val objectMapper = jacksonObjectMapper()
 
     fun validarCaja(numCaja: String): TytValidaCajaResponse? {
         val url = "${properties.baseUrl}/api/ValidaCaja/Get?Num_Caja=$numCaja"

@@ -1,6 +1,6 @@
 package org.tdv.tdvbackend.integration.tytRfid.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -20,10 +20,10 @@ import org.tdv.tdvbackend.integration.tytRfid.exception.TytRfidException
 class TytRfidValidarUsuarioClient(
     private val tytRfidHttpClient: HttpClient,
     private val properties: TytRfidProperties,
-    private val objectMapper: ObjectMapper,
     private val authClient: TytRfidAuthClient,
 ) {
     private val log = LoggerFactory.getLogger(TytRfidValidarUsuarioClient::class.java)
+    private val objectMapper = jacksonObjectMapper()
 
     fun login(login: String, password: String): TytLoginResponse {
         val url = "${properties.baseUrl}/api/ValidarUsuario/Login_Get"

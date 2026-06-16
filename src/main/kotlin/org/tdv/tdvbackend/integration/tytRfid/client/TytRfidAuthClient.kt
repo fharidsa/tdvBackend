@@ -1,6 +1,6 @@
 package org.tdv.tdvbackend.integration.tytRfid.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -21,10 +21,10 @@ import org.tdv.tdvbackend.integration.tytRfid.exception.TytRfidException
 class TytRfidAuthClient(
     private val tytRfidHttpClient: HttpClient,
     private val properties: TytRfidProperties,
-    private val objectMapper: ObjectMapper,
 ) {
     private val log = LoggerFactory.getLogger(TytRfidAuthClient::class.java)
     private val lock = ReentrantLock()
+    private val objectMapper = jacksonObjectMapper()
 
     @Volatile
     private var cachedToken: String? = null
