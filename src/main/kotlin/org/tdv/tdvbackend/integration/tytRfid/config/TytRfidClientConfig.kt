@@ -1,7 +1,5 @@
 package org.tdv.tdvbackend.integration.tytRfid.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.net.Socket
 import java.net.http.HttpClient
 import java.security.SecureRandom
@@ -11,7 +9,6 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLEngine
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509ExtendedTrustManager
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -23,10 +20,6 @@ import org.springframework.context.annotation.Configuration
 class TytRfidClientConfig(
     private val properties: TytRfidProperties,
 ) {
-
-    @Bean
-    @ConditionalOnMissingBean
-    fun objectMapper(): ObjectMapper = jacksonObjectMapper()
 
     @Bean
     fun tytRfidHttpClient(): HttpClient {
