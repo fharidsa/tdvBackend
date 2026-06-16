@@ -1,3 +1,6 @@
+tyt-rfid:
+  enabled: false
+
 tdv:
   printer:
     host: 127.0.0.1

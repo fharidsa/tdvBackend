@@ -13,11 +13,25 @@ tdv:
     display-name: ${TDV_BOOTSTRAP_DISPLAY_NAME:sistema}
     password: ${TDV_BOOTSTRAP_PASSWORD:123}
 
+tyt-rfid:
+  enabled: ${TYT_RFID_ENABLED:false}
+  base-url: ${TYT_RFID_BASE_URL:https://192.168.1.55:8080/TyT_Rfid_Be}
+  host-header: ${TYT_RFID_HOST_HEADER:devapps.tdv.pe}
+  client-id: ${TYT_RFID_CLIENT_ID:Re8sv3b5E1fHhavKpwBjFh}
+  client-secret: ${TYT_RFID_CLIENT_SECRET:Ep172VuCUGxHmgjZrzxP4bE4db7DCWHgCk7pD8shgQxv}
+  ssl-verify: ${TYT_RFID_SSL_VERIFY:false}
+  connect-timeout-ms: ${TYT_RFID_CONNECT_TIMEOUT_MS:10000}
+  read-timeout-ms: ${TYT_RFID_READ_TIMEOUT_MS:15000}
+
 server:
   error:
     include-message: always
     include-binding-errors: never
     include-stacktrace: never
+
+logging:
+  level:
+    org.tdv.tdvbackend.integration.tytRfid: DEBUG
 
 spring:
   application:

@@ -1,5 +1,6 @@
 package org.tdv.tdvbackend.web.advice
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.AccessDeniedException
@@ -13,6 +14,8 @@ import org.tdv.tdvbackend.web.error.InvalidCredentialsException
 
 @RestControllerAdvice
 class ApiExceptionHandler {
+
+    private val log = LoggerFactory.getLogger(ApiExceptionHandler::class.java)
 
     @ExceptionHandler(ApiException::class)
     fun handleApiException(ex: ApiException): ResponseEntity<ApiErrorResponse> =
@@ -39,8 +42,10 @@ class ApiExceptionHandler {
             .body(ApiErrorResponse(code = ApiErrorCode.FORBIDDEN, message = "Acceso denegado"))
 
     @ExceptionHandler(Exception::class)
-    fun handleUnexpected(ex: Exception): ResponseEntity<ApiErrorResponse> =
-        ResponseEntity
+    fun handleUnexpected(ex: Exception): ResponseEntity<ApiErrorResponse> {
+        log.error("Unhandled exception in controller", ex)
+        return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(ApiErrorResponse(code = ApiErrorCode.VALIDATION_ERROR, message = "Error interno del servidor"))
+    }
 }

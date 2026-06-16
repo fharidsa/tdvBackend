@@ -98,6 +98,19 @@ class InvTdvUsuarioService(
         repository.findByIdUsuarioAndFlBeliminadoFalse(id)
 
     @Transactional
+    fun createFromTyt(login: String, displayName: String, password: String): InvTdvUsuario {
+        val entity = InvTdvUsuario(
+            noNusuario = displayName,
+            coLogin = login,
+            coPasswordHash = passwordService.hash(password),
+            coRol = UsuarioRol.USER,
+            flBeliminado = false,
+            feDfechaCreacion = LocalDateTime.now(),
+        )
+        return repository.save(entity)
+    }
+
+    @Transactional
     fun changePassword(
         id: Int,
         currentPassword: String,
