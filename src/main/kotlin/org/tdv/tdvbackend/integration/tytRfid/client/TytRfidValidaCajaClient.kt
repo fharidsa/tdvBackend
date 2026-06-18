@@ -23,18 +23,23 @@ class TytRfidValidaCajaClient(
     private val log = LoggerFactory.getLogger(TytRfidValidaCajaClient::class.java)
     private val objectMapper = jacksonObjectMapper()
 
-    fun validarCaja(numCaja: String): TytValidaCajaResponse? {
-        val url = "${properties.baseUrl}/api/ValidaCaja/Get?Num_Caja=$numCaja"
+    fun validarCaja(numIca: String): TytValidaCajaResponse? {
+        val url = "${properties.baseUrl}/api/ValidaIca/Get?Num_Ica=$numIca"
+        log.info("TyT ValidaIca request: numIca={}, url={}", numIca, url)
+
         val response = executeWithRetry(url)
+        log.info("TyT ValidaIca response: status={}, body={}", response.statusCode(), response.body())
 
         if (response.statusCode() == 404) return null
 
         if (response.statusCode() !in 200..299) {
-            log.error("TyT ValidaCaja failed: status={}, body={}", response.statusCode(), response.body())
-            throw TytRfidException("Error validando caja en TyT RFID: HTTP ${response.statusCode()}")
+            log.error("TyT ValidaIca failed: status={}, body={}", response.statusCode(), response.body())
+            throw TytRfidException("Error validando ICA en TyT RFID: HTTP ${response.statusCode()}")
         }
 
-        return objectMapper.readValue(response.body(), TytValidaCajaResponse::class.java)
+        val result = objectMapper.readValue(response.body(), TytValidaCajaResponse::class.java)
+        log.info("TyT ValidaIca parsed: {}", result)
+        return result
     }
 
     private fun executeWithRetry(url: String): HttpResponse<String> {
@@ -55,6 +60,8 @@ class TytRfidValidaCajaClient(
             .timeout(Duration.ofMillis(properties.readTimeoutMs))
             .GET()
             .build()
+        // TODO: remove - debug only
+        log.debug("TyT HTTP request: method=GET, url={}, Host={}, Authorization=Bearer {}", url, properties.hostHeader, token)
         return tytRfidHttpClient.send(request, HttpResponse.BodyHandlers.ofString())
     }
 }

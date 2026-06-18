@@ -69,6 +69,7 @@ class InvTdvConteoIcaService(
                 nuNcantidadIca = cantidad,
                 coCicaIca = request.coCicaIca,
                 flBconforme = conforme,
+                numPacking = request.numPacking,
                 idUsuario = request.idUsuario,
                 noUsuario = request.noUsuario?.take(500),
             )
@@ -88,6 +89,7 @@ private fun InvTdvConteoIca.toResponse(labelPrinted: Boolean? = null): InvTdvCon
         nuNcantidadIca = nuNcantidadIca,
         coCicaIca = coCicaIca,
         flBconforme = flBconforme,
+        numPacking = numPacking,
         idUsuario = idUsuario,
         noUsuario = noUsuario,
         labelPrinted = labelPrinted,

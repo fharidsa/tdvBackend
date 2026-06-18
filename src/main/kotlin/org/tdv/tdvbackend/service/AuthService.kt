@@ -87,11 +87,7 @@ class AuthService(
         }
 
         val user = usuarioService.findActiveEntityByLogin(login)
-            ?: usuarioService.createFromTyt(
-                login = login,
-                displayName = tytResponse.nombre ?: login,
-                password = request.password,
-            )
+            ?: throw InvalidCredentialsException()
 
         log.info("User '{}' authenticated via TyT RFID", login)
         return buildLoginResponse(user)

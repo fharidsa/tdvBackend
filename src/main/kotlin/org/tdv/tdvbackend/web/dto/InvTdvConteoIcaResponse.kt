@@ -10,6 +10,7 @@ data class InvTdvConteoIcaResponse(
     val nuNcantidadIca: Int?,
     val coCicaIca: String?,
     val flBconforme: Boolean?,
+    val numPacking: Int?,
     val idUsuario: Int?,
     val noUsuario: String?,
     /** Reservado; la impresión de etiqueta se dispara de forma asíncrona desde la app. */

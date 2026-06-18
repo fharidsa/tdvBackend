@@ -28,9 +28,10 @@ class InvTdvIcaService(
     private fun findByCoCicaViaTyt(coCica: String): InvTdvIcaResponse? {
         val tytResponse = tytRfidFacade!!.validarCaja(coCica) ?: return null
         return InvTdvIcaResponse(
-            idIca = tytResponse.numCaja.toLong(),
+            idIca = null,
             coCica = coCica,
             nuNCantidad = tytResponse.numPrendas,
+            numPacking = tytResponse.numPacking,
         )
     }
 }

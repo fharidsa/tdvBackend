@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
 import org.tdv.tdvbackend.integration.tytRfid.config.TytRfidProperties
 import org.tdv.tdvbackend.integration.tytRfid.dto.TytTokenRequest
 import org.tdv.tdvbackend.integration.tytRfid.dto.TytTokenResponse
+import jakarta.annotation.PostConstruct
 import org.tdv.tdvbackend.integration.tytRfid.exception.TytRfidException
 
 @Component
@@ -25,6 +26,16 @@ class TytRfidAuthClient(
     private val log = LoggerFactory.getLogger(TytRfidAuthClient::class.java)
     private val lock = ReentrantLock()
     private val objectMapper = jacksonObjectMapper()
+
+    @PostConstruct
+    fun warmUp() {
+        try {
+            refreshToken()
+            log.info("TyT RFID token pre-cached on startup")
+        } catch (e: Exception) {
+            log.warn("TyT RFID token warm-up failed (will retry on first use): {}", e.message)
+        }
+    }
 
     @Volatile
     private var cachedToken: String? = null

@@ -1,7 +1,8 @@
 package org.tdv.tdvbackend.web.dto
 
 data class InvTdvIcaResponse(
-    val idIca: Long,
+    val idIca: Long?,
     val coCica: String?,
     val nuNCantidad: Int?,
+    val numPacking: Int? = null,
 )
