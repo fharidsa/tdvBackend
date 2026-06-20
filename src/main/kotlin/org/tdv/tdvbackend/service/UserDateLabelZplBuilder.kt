@@ -1,18 +1,24 @@
 package org.tdv.tdvbackend.service
 
-/** Genera ZPL para etiqueta 1 x 1 pulgada (usuario + fecha). */
+/** Genera ZPL para etiqueta 1 x 3cm (usuario + fecha) a 203 dpi. */
 object UserDateLabelZplBuilder {
 
     private const val DOTS_PER_INCH = 203
+    // Etiqueta física: 1 pulgada ancho × 3 cm alto = 203 × 240 dots
+    private const val LABEL_WIDTH_DOTS = 203
+    private const val LABEL_HEIGHT_DOTS = 240  // 3cm × (203/2.54) ≈ 240
+    // Offset vertical para centrar el contenido (0.8cm de margen superior = 64 dots)
+    private const val LABEL_VERTICAL_OFFSET = 64
 
     fun build(usuario: String, fecha: String): String {
         val safeUsuario = sanitizeForZpl(usuario)
         val safeFecha = sanitizeForZpl(fecha)
 
-        val labelSize = DOTS_PER_INCH
+        val labelWidth = LABEL_WIDTH_DOTS
+        val labelHeight = LABEL_HEIGHT_DOTS
         val margin = 8
-        val innerWidth = labelSize - (margin * 2)
-        val innerHeight = labelSize - (margin * 2)
+        val innerWidth = labelWidth - (margin * 2)
+        val innerHeight = labelHeight - (margin * 2)
         val usuarioFont = 38
         val fechaFont = 34
         val usuarioLineSpacing = 8
@@ -41,9 +47,9 @@ object UserDateLabelZplBuilder {
         return buildString {
             append("^XA\n")
             append("^MNW\n")
-            append("^LH0,0\n")
-            append("^PW$labelSize\n")
-            append("^LL$labelSize\n")
+            append("^LH0,$LABEL_VERTICAL_OFFSET\n")
+            append("^PW$labelWidth\n")
+            append("^LL$labelHeight\n")
 
             append("^FO$margin,$margin^GB$innerWidth,$innerHeight,2^FS\n")
 
