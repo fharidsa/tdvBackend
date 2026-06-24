@@ -9,10 +9,8 @@ data class TytLoginResponse(
     val empleado: String? = null,
     val correoElectronico: String? = null,
     val message: String? = null,
+    val valid: Boolean = false,
 ) {
-    val valid: Boolean
-        get() = !codEmpleado.isNullOrBlank()
-
     val nombre: String?
         get() = empleado
 }

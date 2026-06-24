@@ -86,11 +86,16 @@ class AuthService(
             throw InvalidCredentialsException()
         }
 
-        val user = usuarioService.findActiveEntityByLogin(login)
-            ?: throw InvalidCredentialsException()
-
         log.info("User '{}' authenticated via TyT RFID", login)
-        return buildLoginResponse(user)
+
+        val profile = UserProfileResponse(
+            idUsuario = tytResponse.codEmpleado?.toIntOrNull() ?: 0,
+            noNusuario = tytResponse.nombre ?: login,
+            coLogin = login,
+            coRol = UsuarioRol.ADMIN,
+        )
+        val token = jwtService.generateToken(profile)
+        return AuthLoginResponse(accessToken = token, user = profile)
     }
 
     private fun buildLoginResponse(user: InvTdvUsuario): AuthLoginResponse {

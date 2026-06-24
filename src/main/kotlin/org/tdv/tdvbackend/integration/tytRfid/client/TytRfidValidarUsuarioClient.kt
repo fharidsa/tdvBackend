@@ -35,7 +35,8 @@ class TytRfidValidarUsuarioClient(
             throw TytRfidException("Error validando usuario en TyT RFID: HTTP ${response.statusCode()}")
         }
 
-        return objectMapper.readValue(response.body(), TytLoginResponse::class.java)
+        val parsed = objectMapper.readValue(response.body(), TytLoginResponse::class.java)
+        return parsed.copy(valid = true)
     }
 
     fun obtenerEmpleado(codEmpleado: String): TytEmpleadoResponse? {
