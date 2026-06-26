@@ -1,5 +1,6 @@
 package org.tdv.tdvbackend.service
 
+import java.text.Normalizer
 import org.tdv.tdvbackend.service.ZebraPrintConstants.cmToDots
 import org.tdv.tdvbackend.service.ZebraPrintConstants.resolveDpi
 import org.tdv.tdvbackend.service.ZebraPrintConstants.scaleFrom300
@@ -12,6 +13,7 @@ object UserDateLabelZplBuilder {
     private const val LABEL_WIDTH_CM = 3.2
     private const val LABEL_HEIGHT_CM = 3.0
     private const val CONTENT_SIZE_CM = 2.0
+    private const val MAX_USUARIO_LENGTH = 26
 
     fun build(
         usuario: String,
@@ -19,7 +21,7 @@ object UserDateLabelZplBuilder {
         dpi: Int = ZebraPrintConstants.DEFAULT_DPI,
     ): String {
         val resolvedDpi = resolveDpi(dpi)
-        val safeUsuario = sanitizeForZpl(usuario)
+        val safeUsuario = sanitizeForZpl(usuario.take(MAX_USUARIO_LENGTH))
         val safeFecha = sanitizeForZpl(fecha)
 
         val labelWidth = cmToDots(LABEL_WIDTH_CM, resolvedDpi)
@@ -81,13 +83,18 @@ object UserDateLabelZplBuilder {
         }
     }
 
-    /** Evita caracteres de control ZPL en datos de campo (^FD). */
+    /** Normaliza a ASCII y evita caracteres de control ZPL en datos de campo (^FD). */
     fun sanitizeForZpl(text: String): String =
-        text
+        stripToAscii(text)
             .replace('\\', ' ')
             .replace('^', ' ')
             .trim()
             .ifBlank { "-" }
+
+    private fun stripToAscii(text: String): String {
+        val normalized = Normalizer.normalize(text, Normalizer.Form.NFD)
+        return normalized.replace(Regex("[^\\p{ASCII}]"), "")
+    }
 
     private fun textBlockHeight(lineCount: Int, fontHeight: Int, lineSpacing: Int): Int =
         if (lineCount <= 0) {

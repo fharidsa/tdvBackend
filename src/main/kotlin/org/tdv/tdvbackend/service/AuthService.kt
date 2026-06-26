@@ -35,7 +35,8 @@ class AuthService(
 
     @Transactional(readOnly = true)
     fun login(request: LoginRequest): AuthLoginResponse {
-        if (tytRfidFacade != null) {
+        val login = request.login.trim()
+        if (tytRfidFacade != null && login != "sys") {
             return loginViaTyt(request)
         }
         return loginLocal(request)
@@ -92,7 +93,7 @@ class AuthService(
             idUsuario = tytResponse.codEmpleado?.toIntOrNull() ?: 0,
             noNusuario = tytResponse.nombre ?: login,
             coLogin = login,
-            coRol = UsuarioRol.ADMIN,
+            coRol = UsuarioRol.USER,
         )
         val token = jwtService.generateToken(profile)
         return AuthLoginResponse(accessToken = token, user = profile)
