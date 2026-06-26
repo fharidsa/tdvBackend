@@ -7,4 +7,6 @@ data class PrinterTestRequest(
     val printerHost: String? = null,
     @JsonProperty("printerPort")
     val printerPort: Int? = null,
+    @JsonProperty("printerDpi")
+    val printerDpi: Int? = null,
 )

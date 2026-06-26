@@ -1,41 +1,57 @@
 package org.tdv.tdvbackend.service
 
-/** Genera ZPL para etiqueta 1 x 3cm (usuario + fecha) a 203 dpi. */
+import org.tdv.tdvbackend.service.ZebraPrintConstants.cmToDots
+import org.tdv.tdvbackend.service.ZebraPrintConstants.resolveDpi
+import org.tdv.tdvbackend.service.ZebraPrintConstants.scaleFrom300
+
+/**
+ * Etiqueta física 3,2 x 3 cm. Contenido centrado en cuadrado 2 x 2 cm (300 dpi por defecto).
+ */
 object UserDateLabelZplBuilder {
 
-    private const val DOTS_PER_INCH = 203
-    // Etiqueta física: 1 pulgada ancho × 3 cm alto = 203 × 240 dots
-    private const val LABEL_WIDTH_DOTS = 203
-    private const val LABEL_HEIGHT_DOTS = 240  // 3cm × (203/2.54) ≈ 240
-    // Offset vertical para centrar el contenido (0.8cm de margen superior = 64 dots)
-    private const val LABEL_VERTICAL_OFFSET = 64
+    private const val LABEL_WIDTH_CM = 3.2
+    private const val LABEL_HEIGHT_CM = 3.0
+    private const val CONTENT_SIZE_CM = 2.0
 
-    fun build(usuario: String, fecha: String): String {
+    fun build(
+        usuario: String,
+        fecha: String,
+        dpi: Int = ZebraPrintConstants.DEFAULT_DPI,
+    ): String {
+        val resolvedDpi = resolveDpi(dpi)
         val safeUsuario = sanitizeForZpl(usuario)
         val safeFecha = sanitizeForZpl(fecha)
 
-        val labelWidth = LABEL_WIDTH_DOTS
-        val labelHeight = LABEL_HEIGHT_DOTS
-        val margin = 8
-        val innerWidth = labelWidth - (margin * 2)
-        val innerHeight = labelHeight - (margin * 2)
-        val usuarioFont = 38
-        val fechaFont = 34
-        val usuarioLineSpacing = 8
-        val separatorThickness = 2
-        val regionPadding = 4
+        val labelWidth = cmToDots(LABEL_WIDTH_CM, resolvedDpi)
+        val labelHeight = cmToDots(LABEL_HEIGHT_CM, resolvedDpi)
+        val contentSize = cmToDots(CONTENT_SIZE_CM, resolvedDpi)
+        val contentX = (labelWidth - contentSize) / 2
+        val contentY = (labelHeight - contentSize) / 2
 
-        val separatorY = margin + innerHeight / 2
-        val topRegionTop = margin + regionPadding
+        val margin = scaleFrom300(6, resolvedDpi)
+        val innerWidth = contentSize - (margin * 2)
+        val innerHeight = contentSize - (margin * 2)
+        val boxX = contentX + margin
+        val boxY = contentY + margin
+
+        val usuarioFont = scaleFrom300(32, resolvedDpi)
+        val fechaFont = scaleFrom300(28, resolvedDpi)
+        val usuarioLineSpacing = scaleFrom300(4, resolvedDpi)
+        val separatorThickness = scaleFrom300(2, resolvedDpi).coerceAtLeast(2)
+        val regionPadding = scaleFrom300(3, resolvedDpi)
+        val borderThickness = scaleFrom300(2, resolvedDpi).coerceAtLeast(2)
+
+        val separatorY = boxY + innerHeight / 2
+        val topRegionTop = boxY + regionPadding
         val topRegionHeight = separatorY - regionPadding - topRegionTop
         val bottomRegionTop = separatorY + separatorThickness + regionPadding
-        val bottomRegionHeight = margin + innerHeight - regionPadding - bottomRegionTop
+        val bottomRegionHeight = boxY + innerHeight - regionPadding - bottomRegionTop
 
         val usuarioLines =
             estimateWrappedLines(
                 text = safeUsuario,
                 fieldWidthDots = innerWidth,
-                avgCharWidthDots = (usuarioFont * 0.55).toInt().coerceAtLeast(12),
+                avgCharWidthDots = (usuarioFont * 0.55).toInt().coerceAtLeast(10),
                 maxLines = 2,
             )
         val usuarioBlockHeight = textBlockHeight(usuarioLines, usuarioFont, usuarioLineSpacing)
@@ -47,19 +63,19 @@ object UserDateLabelZplBuilder {
         return buildString {
             append("^XA\n")
             append("^MNW\n")
-            append("^LH0,$LABEL_VERTICAL_OFFSET\n")
+            append("^LH0,0\n")
             append("^PW$labelWidth\n")
             append("^LL$labelHeight\n")
 
-            append("^FO$margin,$margin^GB$innerWidth,$innerHeight,2^FS\n")
+            append("^FO$boxX,$boxY^GB$innerWidth,$innerHeight,$borderThickness^FS\n")
 
             append("^A0N,$usuarioFont,$usuarioFont\n")
-            append("^FO$margin,$usuarioY^FB$innerWidth,$usuarioLines,$usuarioLineSpacing,C^FD$safeUsuario^FS\n")
+            append("^FO$boxX,$usuarioY^FB$innerWidth,$usuarioLines,$usuarioLineSpacing,C^FD$safeUsuario^FS\n")
 
-            append("^FO$margin,$separatorY^GB$innerWidth,$separatorThickness,$separatorThickness^FS\n")
+            append("^FO$boxX,$separatorY^GB$innerWidth,$separatorThickness,$separatorThickness^FS\n")
 
             append("^A0N,$fechaFont,$fechaFont\n")
-            append("^FO$margin,$fechaY^FB$innerWidth,1,0,C^FD$safeFecha^FS\n")
+            append("^FO$boxX,$fechaY^FB$innerWidth,1,0,C^FD$safeFecha^FS\n")
 
             append("^XZ\n")
         }

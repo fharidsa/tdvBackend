@@ -51,6 +51,7 @@ class PrinterController(
                 fecha = now.toLocalDate(),
                 hostOverride = body?.printerHost,
                 portOverride = body?.printerPort,
+                dpiOverride = body?.printerDpi,
             )
             ok("Etiqueta usuario/fecha enviada")
         }.getOrElse { printerError(it) }
